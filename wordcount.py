@@ -39,56 +39,57 @@ print_words() and print_top().
 
 import sys
 
+
 # +++your code here+++
 # Define print_words(filename) and print_top(filename) functions.
 # You could write a helper utility function that reads a file
 # and builds and returns a word/count dict for it.
 # Then print_words() and print_top() can just call the utility function.
+from collections import defaultdict
+
+
 def print_words(filename):
-  das = help_read(filename)
-  for key in das:
-    print(key + " :", das[key])
+    das = help_read(filename)
+    for key in das:
+        print(key + " :", das[key])
 
 
 def print_top(filename):
-  das = help_read(filename)
-  neu_das = sorted(das, key=das.get, reverse=True)
-  count = 1
-  for key in neu_das:
-    print(count, key, das[key])
-    count += 1
-    if count == 20:
-      break 
-  
+    das = help_read(filename)
+    neu_das = sorted(das, key=das.get, reverse=True)
+    for count, key in enumerate(neu_das, 1):
+        print(count, key, das[key])
+        if count == 20:
+            break
+
 
 def help_read(filename):
-  das = {}
-  f = open(filename, 'rU')
-  text = f.read()
-  text_l = text.lower()
-  s = text_l.split() 
-  for n in s:
-    if n not in das:
-      das[n] = 1
-    else: das[n] = das[n] + 1
-  f.close()   
-  return das  
+    f = open(filename, 'rU')
+    text = f.read()
+    text_l = text.lower()
+    s = text_l.split()
+    d = defaultdict(int)
+    for k in s:
+        d[k] += 1
+    f.close()
+    return d
 
 
 def main():
-  if len(sys.argv) != 3:
-    print('usage: ./wordcount.py {--count | --topcount} file')
-    sys.exit(1)
+    if len(sys.argv) != 3:
+        print('usage: ./wordcount.py {--count | --topcount} file')
+        sys.exit(1)
 
-  option = sys.argv[1]
-  filename = sys.argv[2]
-  if option == '--count':
-    print_words(filename)
-  elif option == '--topcount':
-    print_top(filename)
-  else:
-    print('unknown option: ' + option)
-    sys.exit(1)
+    option = sys.argv[1]
+    filename = sys.argv[2]
+    if option == '--count':
+        print_words(filename)
+    elif option == '--topcount':
+        print_top(filename)
+    else:
+        print('unknown option: ' + option)
+        sys.exit(1)
+
 
 if __name__ == '__main__':
-  main()
+    main()

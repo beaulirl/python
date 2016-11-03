@@ -8,6 +8,7 @@
 
 # Additional basic string exercises
 
+
 # D. verbing
 # Given a string, if its length is at least 3,
 # add 'ing' to its end.
@@ -16,11 +17,12 @@
 # If the string length is less than 3, leave it unchanged.
 # Return the resulting string.
 def verbing(s):
-  if len(s) >= 3:
-    if s[-3:] == 'ing':
-      return s + 'ly'
-    return s + 'ing'
-  else: return s
+    if len(s) >= 3:
+        if s[-3:] == 'ing':
+            return s + 'ly'
+        return s + 'ing'
+    else:
+        return s
 
 
 # E. not_bad
@@ -32,14 +34,13 @@ def verbing(s):
 # So 'This dinner is not that bad!' yields:
 # This dinner is good!
 def not_bad(s):
-  if s.find('not') != -1 and s.find('bad') != -1 and s.find('yet') == -1:
-    f = s.find('not')
-    g = s[f:]
-    if s[-1] == '!':
-      return s.replace(g, 'good!')
-    return s.replace(g, 'good')
-  else: return s  
-   
+    if 'not' in s and 'bad' in s and s.find('bad') > s.find('not'):
+        f = s.find('not')
+        d = s.find('bad')
+        g = len('bad')
+        return s[:f] + 'good' + s[d+g:]
+    else:
+        return s
 
 
 # F. front_back
@@ -50,55 +51,46 @@ def not_bad(s):
 # Given 2 strings, a and b, return a string of the form
 #  a-front + b-front + a-back + b-back
 def front_back(a, b):
-  if len(a) % 2 == 0:
-    front_l = int(len(a)/2)
-    front = a[0:front_l]
-    back = a[front_l:]
-  else:
-    front_l = int(len(a)/2) + 1
-    front = a[0:front_l]
-    back = a[front_l:]
-  if len(b) % 2 == 0:
-    front_l_b = int(len(b)/2)
-    front_b = b[0:front_l_b]
-    back_b = b[front_l_b:]
-  else:
-    front_l_b = int(len(b)/2) + 1 
-    front_b = b[0:front_l_b]
-    back_b = b[front_l_b:]
-  return front + front_b + back + back_b
+    front_l = int(len(a) / 2)
+    front_l_b = int(len(b) / 2)
+    if len(a) % 2 == 1:
+        front_l += 1
+    if len(b) % 2 == 1:
+        front_l_b += 1
+    return a[:front_l] + b[:front_l_b] + a[front_l:] + b[front_l_b:]
 
 
 # Simple provided test() function used in main() to print
 # what each function returns vs. what it's supposed to return.
 def test(got, expected):
-  if got == expected:
-    prefix = ' OK '
-  else:
-    prefix = '  X '
-  print('%s got: %s expected: %s' % (prefix, repr(got), repr(expected)))
+    if got == expected:
+        prefix = ' OK '
+    else:
+        prefix = '  X '
+    print('%s got: %s expected: %s' % (prefix, repr(got), repr(expected)))
 
 
 # main() calls the above functions with interesting inputs,
 # using the above test() to check if the result is correct or not.
 def main():
-  print('verbing')
-  test(verbing('hail'), 'hailing')
-  test(verbing('swiming'), 'swimingly')
-  test(verbing('do'), 'do')
+    print('verbing')
+    test(verbing('hail'), 'hailing')
+    test(verbing('swiming'), 'swimingly')
+    test(verbing('do'), 'do')
 
-  print()
-  print('not_bad')
-  test(not_bad('This movie is not so bad'), 'This movie is good')
-  test(not_bad('This dinner is not that bad!'), 'This dinner is good!')
-  test(not_bad('This tea is not hot'), 'This tea is not hot')
-  test(not_bad("It's bad yet not"), "It's bad yet not")
+    print()
+    print('not_bad')
+    test(not_bad('This movie is not so bad'), 'This movie is good')
+    test(not_bad('This dinner is not that bad!'), 'This dinner is good!')
+    test(not_bad('This tea is not hot'), 'This tea is not hot')
+    test(not_bad("It's bad yet not"), "It's bad yet not")
 
-  print()
-  print('front_back')
-  test(front_back('abcd', 'xy'), 'abxcdy')
-  test(front_back('abcde', 'xyz'), 'abcxydez')
-  test(front_back('Kitten', 'Donut'), 'KitDontenut')
+    print()
+    print('front_back')
+    test(front_back('abcd', 'xy'), 'abxcdy')
+    test(front_back('abcde', 'xyz'), 'abcxydez')
+    test(front_back('Kitten', 'Donut'), 'KitDontenut')
+
 
 if __name__ == '__main__':
-  main()
+    main()

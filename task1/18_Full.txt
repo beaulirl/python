@@ -1,0 +1,23 @@
+GET https://wl-prod.sabresonicweb.com/SSW2010/static/22/K6K6/170/templates_/__modules/routes/routesModules.js?1478693573776 HTTP/1.1
+Host: wl-prod.sabresonicweb.com
+Connection: keep-alive
+User-Agent: Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2840.71 Safari/537.36
+Accept: */*
+Referer: https://wl-prod.sabresonicweb.com/SSW2010/K6K6/webqtrip.html?execution=e1s1
+Accept-Encoding: gzip, deflate, sdch, br
+Accept-Language: ru-RU,ru;q=0.8,en-US;q=0.6,en;q=0.4
+Cookie: JSESSIONID=BCBD865DE636AEB42446CCC5EF63FF34; BoomerangBw=DISABLED; WLPCOOKIE=sswhlp12616; SSWGID=F7C06F76DE1C4B94896531A95C4F2A98; JSESSIONID=91DC0C7C4158C18ECC3020F912D40DE1; __utmt=1; __utma=167498044.627934640.1478702982.1479211614.1479213781.5; __utmb=167498044.2.10.1479213781; __utmc=167498044; __utmz=167498044.1478702982.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none); _gat_UA-43438272-4=1; _ga=GA1.3.627934640.1478702982; _gat_UA-79362025-1=1; _ga=GA1.2.627934640.1478702982; _gat_UA-43438272-5=1; js=8499b3bb-1f20-4301-9729-2242654a1d1a
+
+
+HTTP/1.1 200 OK
+Cache-Control: public, max-age=2592000, must-revalidate
+Expires: Thu, 15 Dec 2016 12:49:09 GMT
+Accept-Ranges: bytes
+ETag: W/"685-1478693778000"
+Last-Modified: Wed, 09 Nov 2016 12:16:18 GMT
+Content-Type: text/javascript
+Content-Length: 685
+Date: Tue, 15 Nov 2016 12:49:08 GMT
+Server: 
+
+YUI.add("wl-routes",function(B){var A={BKK:{CAN:1,DAD:1,HAN:1,PNH:1,PVG:1,REP:1},CAN:{BKK:1,HAN:1,KOS:1,PNH:1,REP:1,SGN:1,VTE:1},DAD:{BKK:1,PNH:1,REP:1},HAN:{BKK:1,CAN:1,KOS:1,PNH:1,REP:1,VTE:1,VTE:1},ICN:{PNH:1},KOS:{CAN:1,HAN:1,HKG:1,KUL:1,LPQ:1,PEK:1,PNH:1,PVG:1,REP:1,SGN:1,SIN:1},LPQ:{KOS:1,PNH:1,REP:1,SGN:1},PEK:{KOS:1,PNH:1,REP:1},PNH:{BKK:1,CAN:1,DAD:1,HAN:1,HKG:1,ICN:1,KOS:1,KUL:1,LPQ:1,PEK:1,PVG:1,REP:1,SGN:1,SIN:1,VTE:1},PVG:{BKK:1,KOS:1,PNH:1,REP:1,SGN:1},REP:{BKK:1,CAN:1,DAD:1,HAN:1,HKG:1,KOS:1,KUL:1,LPQ:1,PEK:1,PNH:1,PVG:1,SGN:1,SIN:1},SGN:{BKK:1,CAN:1,KOS:1,LPQ:1,PNH:1,PVG:1,REP:1,VTE:1},TPE:{PNH:1,REP:1},VTE:{CAN:1,HAN:1,HAN:1,PNH:1,SGN:1}};B.routes=A},"1.0.0");

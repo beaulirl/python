@@ -1,19 +1,28 @@
 import re
+import requests
 
 
-def read_function(filename):
-    f = open(filename, 'rU')
-    s = f.read()
-    b = s.split('var A')
+def read_function():
+    r = requests.get('https://wl-prod.sabresonicweb.com/SSW2010/static/22/K6K6/170/templates_/__modules/'
+                     'routes/routesModules.js?1478693573776', verify=False)
+    d = r.text
+    b = d.split('var A')
     parts = b[1].split('},')
-    m = 0
-    while m < len(parts):
-        h = re.findall(r'(\w\w\w)[:]', parts[m])
-        m += 1
+    m1 = gen(parts)
+    for i in m1:
+        print(i)
+
+
+def gen(text):
+    num = 0
+    while num < len(text):
+        h = re.findall(r'(\w\w\w)[:]', text[num])
+        num += 1
         i = 1
         while i < len(h):
-            print(h[0], "-", h[i])
+            yield h[0] + " - " + h[i]
             i += 1
 
-read_function("18_Full.txt")
+
+read_function()
 

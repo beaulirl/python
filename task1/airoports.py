@@ -1,28 +1,39 @@
 import re
-import requests
+# import requests
+
+
+def list_init(fn):
+    def wrapped(*args):
+        list_flights = []
+        for n in fn(*args):
+            s = n[0]
+            d = n[1]
+            dict_flight = {"from": s, "to": d, "mode": "flight"}
+            list_flights.append(dict_flight)
+        return list_flights
+    return wrapped
 
 
 def read_function():
-    r = requests.get('https://wl-prod.sabresonicweb.com/SSW2010/static/22/K6K6/170/templates_/__modules/'
-                     'routes/routesModules.js?1478693573776', verify=False)
-    d = r.text
-    b = d.split('var A')
-    parts = b[1].split('},')
-    m1 = gen(parts)
-    for i in m1:
-        print(i)
+    # response = requests.get('https://wl-prod.sabresonicweb.com/SSW2010/static/22/K6K6/170/templates_/__modules/'
+    #                         'routes/routesModules.js?1478693573776', verify=False)
+    # text = response.text
+    with open('18_Full.txt', 'r') as f:
+        text = f.read()
+    parts = re.findall(r'(\w+:{(?:\w+:\d,)+\w+:\d}[,}])', text)
+    for pair in gen(parts):
+        print(pair)
 
 
-def gen(text):
-    num = 0
-    while num < len(text):
-        h = re.findall(r'(\w\w\w)[:]', text[num])
-        num += 1
-        i = 1
-        while i < len(h):
-            yield h[0] + " - " + h[i]
-            i += 1
+@list_init
+def gen(strings):
+    results = []
+    for string in strings:
+        airports = iter(re.findall(r'(\w\w\w):', string))
+        origin = next(airports)
+        for destination in airports:
+            results.append((origin, destination))
+    return results
 
 
 read_function()
-

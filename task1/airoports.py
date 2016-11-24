@@ -5,10 +5,10 @@ import re
 def list_init(fn):
     def wrapped(*args):
         list_flights = []
-        for n in fn(*args):
-            s = n[0]
-            d = n[1]
-            dict_flight = {"from": s, "to": d, "mode": "flight"}
+        for flight in fn(*args):
+            origin = flight[0]
+            destination = flight[1]
+            dict_flight = {"from": origin, "to": destination, "mode": "flight"}
             list_flights.append(dict_flight)
         return list_flights
     return wrapped

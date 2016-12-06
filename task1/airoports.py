@@ -1,15 +1,14 @@
 import re
 # import requests
+from classpe import Route
 
 
 def list_init(fn):
     def wrapped(*args):
         list_flights = []
-        for flight in fn(*args):
-            origin = flight[0]
-            destination = flight[1]
-            dict_flight = {"from": origin, "to": destination, "mode": "flight"}
-            list_flights.append(dict_flight)
+        for origin, destination in fn(*args):
+            route = Route(origin, destination, "flight")
+            list_flights.append(route)
         return list_flights
     return wrapped
 
@@ -27,13 +26,14 @@ def read_function():
 
 @list_init
 def gen(strings):
-    results = []
     for string in strings:
         airports = iter(re.findall(r'(\w\w\w):', string))
         origin = next(airports)
         for destination in airports:
-            results.append((origin, destination))
-    return results
+            yield origin, destination
+
 
 
 read_function()
+
+

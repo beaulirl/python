@@ -1,5 +1,7 @@
 import re
-# import requests
+
+import requests
+from lxml import html
 from classpe import Route
 
 
@@ -14,14 +16,19 @@ def list_init(fn):
 
 
 def read_function():
-    # response = requests.get('https://wl-prod.sabresonicweb.com/SSW2010/static/22/K6K6/170/templates_/__modules/'
-    #                         'routes/routesModules.js?1478693573776', verify=False)
-    # text = response.text
-    with open('18_Full.txt', 'r') as f:
-        text = f.read()
+    address = get_js().attrib['src']
+    response = requests.get('https://wl-prod.sabresonicweb.com/SSW2010/K6K6/' + address)
+    text = response.text
     parts = re.findall(r'(\w+:{(?:\w+:\d,)+\w+:\d}[,}])', text)
     for pair in gen(parts):
         print(pair)
+
+
+def get_js():
+    response = requests.get('https://wl-prod.sabresonicweb.com/SSW2010/K6K6/webqtrip.html')
+    page = html.fromstring(response.content)
+    script_url = page.xpath('//script[contains(@src, "routesModules")]')[0]
+    return script_url
 
 
 @list_init
@@ -33,7 +40,4 @@ def gen(strings):
             yield origin, destination
 
 
-
 read_function()
-
-

@@ -9,19 +9,19 @@ def get_flights(departure, destination, date_out, *args):
     """This function requests data about flights"""
     with requests.Session() as c:
         url = 'http://www.flyniki.com/en/start.php'
+        one_way = get_way(args)
+        trip_data = dict(departure=departure,
+                         destination=destination, outboundDate=date_out, returnDate=args, adultCount=1,
+                         oneway=one_way, market='US', language='en')
+        ajax_trip_data = {
+            '_ajax[templates][]': 'main',
+            '_ajax[requestParams][departure]': departure,
+            '_ajax[requestParams][destination]': destination,
+            '_ajax[requestParams][outboundDate]': date_out,
+            '_ajax[requestParams][returnDate]': args,
+            '_ajax[requestParams][adultCount]': 1,
+            '_ajax[requestParams][oneway]': one_way}
         if check_date(date_out, *args):
-            one_way = get_way(args)
-            trip_data = dict(departure=departure,
-                             destination=destination, outboundDate=date_out, returnDate=args, adultCount=1,
-                             oneway=one_way, market='US', language='en')
-            ajax_trip_data = {
-                '_ajax[templates][]': 'main',
-                '_ajax[requestParams][departure]': departure,
-                '_ajax[requestParams][destination]': destination,
-                '_ajax[requestParams][outboundDate]': date_out,
-                '_ajax[requestParams][returnDate]': args,
-                '_ajax[requestParams][adultCount]': 1,
-                '_ajax[requestParams][oneway]': one_way}
             try:
                 response1 = c.post(url, data=trip_data, verify=False)
                 response2 = c.post(response1.url, data=ajax_trip_data, verify=False)
@@ -75,7 +75,7 @@ def parse_json(response):
         if index != len(flights_list_new)-1:
             if flights_list_new[index][3][0:14] == flights_list_new[index+1][3][0:14]:
                 flights_list_new.remove(flights_list_new[index + 1])
-            print string[1], string[2], string[3], "Pounds"
+            print string[0], string[1], string[2], string[3], "Pounds"
 
 if __name__ == '__main__':
     print(get_flights('VCE', 'STR', '2017-05-15', '2017-05-17'))

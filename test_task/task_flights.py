@@ -44,7 +44,7 @@ def check_date(date_out, *args):
         datetime_return = datetime.datetime.strptime(date_return, '%Y-%m-%d')
     datetime_out = datetime.datetime.strptime(date_out, '%Y-%m-%d')
     if datetime_out < today or datetime_return < today or datetime_return < datetime_out:
-        print("Please, check your date")
+        print "Please, check your date"
         return 0
     else:
         return 1
@@ -78,4 +78,4 @@ def parse_json(response):
             print string[0], string[1], string[2], string[3], "Pounds"
 
 if __name__ == '__main__':
-    print(get_flights('VCE', 'STR', '2017-05-15', '2017-05-17'))
+    print get_flights('VCE', 'STR', '2017-05-15', '2017-05-17')

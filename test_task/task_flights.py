@@ -5,20 +5,20 @@ import requests
 from lxml import html
 
 
-def get_flights(departure, destination, date_out, *args):
+def get_flights(departure, destination, date_out, date_back=None):
     """Request data about flights"""
-    if check_date(date_out, *args):
+    if check_date(date_out, date_back):
         with requests.Session() as session:
             url = 'http://www.flyniki.com/en/start.php'
-            one_way = 1 if not args else 0
+            one_way = 1 if not date_back else 0
             trip_data = {'departure': departure, 'destination': destination, 'outboundDate': date_out,
-                         'returnDate':  args, 'adultCount': 1, 'oneway': one_way, 'market': 'US', 'language': 'en'}
+                         'returnDate':  date_back, 'adultCount': 1, 'oneway': one_way, 'market': 'US', 'language': 'en'}
             ajax_trip_data = {
                 '_ajax[templates][]': 'main',
                 '_ajax[requestParams][departure]': departure,
                 '_ajax[requestParams][destination]': destination,
                 '_ajax[requestParams][outboundDate]': date_out,
-                '_ajax[requestParams][returnDate]':  args,
+                '_ajax[requestParams][returnDate]':  date_back,
                 '_ajax[requestParams][adultCount]': 1,
                 '_ajax[requestParams][oneway]': one_way}
             try:
@@ -33,13 +33,13 @@ def get_flights(departure, destination, date_out, *args):
             parse_json(response2)
 
 
-def check_date(date_out, *args):
+def check_date(date_out, date_back=None):
     """Check if a date is correct"""
     today = datetime.date.today()
-    if not args:
-        datetime_return = datetime.datetime.strptime('9999-12-31', '%Y-%m-%d')
+    if not date_back:
+        datetime_return = datetime.datetime.strptime('9999-12-31', '%Y-%m-%d').date()
     else:
-        date_return = args[0]
+        date_return = date_back[0]
         datetime_return = datetime.datetime.strptime(date_return, '%Y-%m-%d').date()
     datetime_out = datetime.datetime.strptime(date_out, '%Y-%m-%d').date()
     if datetime_out < today or datetime_return < today or datetime_return < datetime_out:
@@ -64,4 +64,4 @@ def parse_json(response):
             print flight_info_xml[k+1], "Pounds"
 
 if __name__ == '__main__':
-    print get_flights('VCE', 'STR', '2017-02-13', '2017-02-14')
+    print get_flights('VCE', 'STR', '2017-02-13')

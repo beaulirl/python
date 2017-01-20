@@ -7,8 +7,6 @@ from lxml import html
 
 def get_flights(departure, destination, date_out, date_back=None):
     """Request data about flights"""
-    if not check_date(date_out, date_back):
-        return 0
     with requests.Session() as session:
         url = 'http://www.flyniki.com/en/start.php'
         if date_back:
@@ -53,7 +51,7 @@ def check_date(date_out, date_back=None):
     else:
         datetime_return = datetime.datetime.strptime(date_back, '%Y-%m-%d').date()
     datetime_out = datetime.datetime.strptime(date_out, '%Y-%m-%d').date()
-    if datetime_return < datetime_out < today :
+    if datetime_return < datetime_out < today:
         print "Please, check your date"
         return 0
     else:
@@ -71,10 +69,15 @@ def parse_json(response):
 
 
 def scrape():
-    result_json = get_flights('VCE', 'STR', '2017-01-21', '2017-01-22')
-    if result_json:
-        parse_json(result_json)
-
+    """Start all functions"""
+    departure = 'VCE'
+    destination = 'STR'
+    date_out = '2017-01-21'
+    date_back = '2017-01-22'
+    if check_date(date_out, date_back):
+        result_json = get_flights(departure, destination, date_out, date_back)
+        if result_json:
+            parse_json(result_json)
 
 if __name__ == '__main__':
     scrape()

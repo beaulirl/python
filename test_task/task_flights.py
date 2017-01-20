@@ -53,6 +53,7 @@ def check_date(date_out, date_back=None):
         datetime_return = datetime.datetime.strptime(date_back, '%Y-%m-%d').date()
     datetime_out = datetime.datetime.strptime(date_out, '%Y-%m-%d').date()
     if datetime_out < today or datetime_return < today or datetime_return < datetime_out:
+        print "Please, check your date"
         return 0
     else:
         return 1
@@ -65,13 +66,15 @@ def parse_json(response):
     root = html.fromstring(flight_data)
     flight_info_xml = root.xpath('//span/@title')
     flight_list = set(flight_info_xml)
-    print flight_info_xml[0], "Pounds"
-    for k in range(len(flight_info_xml)):
-        if k != len(flight_info_xml)-1 and flight_info_xml[k][36:50] != flight_info_xml[k + 1][36:50] \
-                and flight_info_xml[k] in flight_list:
-            print flight_info_xml[k+1]
+    if flight_info_xml:
+        print flight_info_xml[0], "Pounds"
+        for k in range(len(flight_info_xml)):
+            if k != len(flight_info_xml)-1 and flight_info_xml[k][36:50] != flight_info_xml[k + 1][36:50] \
+                    and flight_info_xml[k] in flight_list:
+                print flight_info_xml[k+1], "Pounds"
 
 if __name__ == '__main__':
-    result_json = get_flights('VCE', 'STR', '2017-02-13', '2017-02-14')
-    parse_json(result_json)
+    result_json = get_flights('VCE', 'STR', '2017-01-20')
+    if result_json:
+        parse_json(result_json)
 

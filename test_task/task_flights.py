@@ -51,11 +51,11 @@ def check_date(date_out, date_back=None):
     else:
         datetime_return = datetime.datetime.strptime(date_back, '%Y-%m-%d').date()
     datetime_out = datetime.datetime.strptime(date_out, '%Y-%m-%d').date()
-    if datetime_return < datetime_out < today:
+    if datetime_return >= datetime_out >= today:
+        return 1
+    else:
         print "Please, check your date"
         return 0
-    else:
-        return 1
 
 
 def parse_json(response):

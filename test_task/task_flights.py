@@ -16,14 +16,15 @@ def get_flights(departure, destination, date_out, date_back=None):
         else:
             one_way = 1
             date_back = ''
-        trip_data = {'departure': departure,
-                     'destination': destination,
-                     'outboundDate': date_out,
-                     'returnDate':  date_back,
-                     'adultCount': 1,
-                     'oneway': one_way,
-                     'market': 'US',
-                     'language': 'en'}
+        trip_data = {
+            'departure': departure,
+            'destination': destination,
+            'outboundDate': date_out,
+            'returnDate':  date_back,
+            'adultCount': 1,
+            'oneway': one_way,
+            'market': 'US',
+            'language': 'en'}
         ajax_trip_data = {
             '_ajax[templates][]': 'main',
             '_ajax[requestParams][departure]': departure,
@@ -52,7 +53,7 @@ def check_date(date_out, date_back=None):
     else:
         datetime_return = datetime.datetime.strptime(date_back, '%Y-%m-%d').date()
     datetime_out = datetime.datetime.strptime(date_out, '%Y-%m-%d').date()
-    if datetime_out < today or datetime_return < today or datetime_return < datetime_out:
+    if datetime_return < datetime_out < today :
         print "Please, check your date"
         return 0
     else:
@@ -64,17 +65,18 @@ def parse_json(response):
     flight_info_json = json.loads(response.text)
     flight_data = flight_info_json['templates']['main'].replace("\\", "")
     root = html.fromstring(flight_data)
-    flight_info_xml = root.xpath('//span/@title')
-    flight_list = set(flight_info_xml)
-    if flight_info_xml:
-        print flight_info_xml[0], "Pounds"
-        for k in range(len(flight_info_xml)):
-            if k != len(flight_info_xml)-1 and flight_info_xml[k][36:50] != flight_info_xml[k + 1][36:50] \
-                    and flight_info_xml[k] in flight_list:
-                print flight_info_xml[k+1], "Pounds"
+    flight_info_xml = root.xpath('//div[contains(@class, "lowest")]//span/@title')
+    for m in flight_info_xml:
+        print m, "Pounds"
 
-if __name__ == '__main__':
-    result_json = get_flights('VCE', 'STR', '2017-01-20')
+
+def scrape():
+    result_json = get_flights('VCE', 'STR', '2017-01-21', '2017-01-22')
     if result_json:
         parse_json(result_json)
+
+
+if __name__ == '__main__':
+    scrape()
+
 

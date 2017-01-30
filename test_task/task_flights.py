@@ -1,7 +1,9 @@
+"""Get flights data"""
 import datetime
 import json
-import requests
+import itertools
 import sys
+import requests
 
 from lxml import html
 
@@ -42,8 +44,6 @@ def get_flights(departure, destination, date_out, date_back=None):
             print "Connection Timeout occurred"
         except requests.exceptions.ConnectionError:
             print "Connection Error occurred"
-        except requests.exceptions.HTTPError:
-            print "Http Error occurred"
         else:
             return response2
 
@@ -72,20 +72,19 @@ def parse_json(response):
     departure_list = []
     destination_list = []
     if len(sys.argv) != 4:
-        for m in flight_info_xml:
-            if m.get('title')[0:3] == sys.argv[1]:
-                temp_list1 = [m.get('title'), m.text]
+        for flight_info in flight_info_xml:
+            if flight_info.get('title')[0:3] == sys.argv[1]:
+                temp_list1 = [flight_info.get('title'), flight_info.text]
                 departure_list.append(temp_list1)
-            elif m.get('title')[0:3] == sys.argv[2]:
-                temp_list2 = [m.get('title'), m.text]
+            elif flight_info.get('title')[0:3] == sys.argv[2]:
+                temp_list2 = [flight_info.get('title'), flight_info.text]
                 destination_list.append(temp_list2)
-        for n in range(len(departure_list)):
-            for m in range(len(destination_list)):
-                print departure_list[n][0], destination_list[m][0],  "Total cost:", \
-                    float(departure_list[n][1])+float(destination_list[m][1])
+        for element in itertools.product(departure_list, destination_list):
+            print element[0][0], element[1][0], 'Total cost:', \
+                round(float(element[0][1]) + float(element[1][1]), 1)
     else:
-        for d in flight_info_xml:
-            print d.get('title')
+        for flight_info in flight_info_xml:
+            print flight_info.get('title')
 
 
 def scrape():
@@ -104,4 +103,3 @@ def scrape():
 
 if __name__ == '__main__':
     scrape()
-

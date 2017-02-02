@@ -49,12 +49,14 @@ def get_flights(departure, destination, date_out, date_back=None):
 
 
 def check_date(date_out, date_back=None):
-    """Check if a date is correct"""
+    """Check data value"""
+    if check_date_format(date_out, date_back) == 0:
+        return 0
     today = datetime.date.today()
     if not date_back:
         datetime_return = datetime.datetime.strptime('9999-12-31', '%Y-%m-%d').date()
     else:
-        datetime_return = datetime.datetime.strptime(date_back, '%Y-%m-%d').date()
+            datetime_return = datetime.datetime.strptime(date_back, '%Y-%m-%d').date()
     datetime_out = datetime.datetime.strptime(date_out, '%Y-%m-%d').date()
     if datetime_return >= datetime_out >= today:
         return 1
@@ -63,7 +65,27 @@ def check_date(date_out, date_back=None):
         return 0
 
 
-def parse_json(response):
+def check_date_format(date_out, date_back=None):
+    """Check data format"""
+    try:
+        datetime.datetime.strptime(date_out, '%Y-%m-%d')
+        datetime.datetime.strptime(date_back, '%Y-%m-%d')
+    except ValueError:
+        print "Incorrect data format, should be YYYY-MM-DD"
+        return 0
+
+
+def check_code(departure, destination):
+    """Check iata-codes format"""
+    if len(departure) != 3 or not departure.isupper():
+        print "Check your departure code"
+    elif len(destination) != 3 or not destination.isupper():
+        print "Check your destination code"
+    else:
+        return 1
+
+
+def parse_json(response, departure, destination):
     """Parse file and print results"""
     flight_info_json = json.loads(response.text)
     flight_data = flight_info_json['templates']['main'].replace("\\", "")
@@ -73,10 +95,10 @@ def parse_json(response):
     destination_list = []
     if len(sys.argv) != 4:
         for flight_info in flight_info_xml:
-            if flight_info.get('title')[0:3] == sys.argv[1]:
+            if flight_info.get('title')[0:3] == departure:
                 temp_list1 = [flight_info.get('title'), flight_info.text]
                 departure_list.append(temp_list1)
-            elif flight_info.get('title')[0:3] == sys.argv[2]:
+            elif flight_info.get('title')[0:3] == destination:
                 temp_list2 = [flight_info.get('title'), flight_info.text]
                 destination_list.append(temp_list2)
         for element in itertools.product(departure_list, destination_list):
@@ -96,10 +118,18 @@ def scrape():
         date_back = None
     else:
         date_back = sys.argv[4]
-    if check_date(date_out, date_back):
+    if check_date(date_out, date_back) and check_code(departure, destination):
         result_json = get_flights(departure, destination, date_out, date_back)
         if result_json:
-            parse_json(result_json)
+            try:
+                parse_json(result_json, departure, destination)
+            except KeyError:
+                flight_info_json = json.loads(result_json.text)
+                flight_data = flight_info_json['error'].replace("\\", "")
+                root = html.fromstring(flight_data)
+                error_info = root.xpath('//div[contains(@class, "entry")]//text()')
+                print error_info[1]
+
 
 if __name__ == '__main__':
     scrape()

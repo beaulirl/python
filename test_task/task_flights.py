@@ -42,9 +42,9 @@ def get_flights(departure, destination, date_out, date_back=None):
             response1 = session.post(response.url, data=trip_data, verify=False)
             response2 = session.post(response1.url, data=ajax_trip_data, verify=False)
         except requests.exceptions.ConnectTimeout:
-            print("Connection Timeout occurred")
+            print "Connection Timeout occurred"
         except requests.exceptions.ConnectionError:
-            print("Connection Error occurred")
+            print "Connection Error occurred"
         else:
             return response2
 
@@ -62,7 +62,7 @@ def check_date(date_out, date_back=None):
     if datetime_return >= datetime_out >= today:
         return True
     else:
-        print("Please, check your date")
+        print "Please, check your date"
         return False
 
 
@@ -73,17 +73,17 @@ def check_date_format(date_out, date_back=None):
         datetime.datetime.strptime(date_back, '%Y-%m-%d')
         return True
     except ValueError:
-        print("Incorrect data format, should be YYYY-MM-DD")
+        print "Incorrect data format, should be YYYY-MM-DD"
         return False
 
 
 def check_code(departure, destination):
     """Check iata-codes format"""
     if len(departure) != 3 or not departure.isupper() or not departure.isalpha():
-        print("Check your departure code")
+        print "Check your departure code"
         return False
     elif len(destination) != 3 or not destination.isupper() or not destination.isalpha():
-        print("Check your destination code")
+        print "Check your destination code"
         return False
     else:
         return True
@@ -116,14 +116,14 @@ def parse_json(response, departure, destination, input_len):
             elif flight_list['direction'][0:3] == destination:
                 destination_list.append(flight_list)
         for element in itertools.product(departure_list, destination_list):
-            print(element[0]['direction'], element[0]['time'],
+            print element[0]['direction'], element[0]['time'], \
                   element[0]['duration'], element[0]['price_type'],\
-                  element[1]['direction'], element[1]['time'],
+                  element[1]['direction'], element[1]['time'], \
                   element[1]['duration'], element[1]['price_type'],\
-                  'Total cost:', float(element[1]['price'])+float(element[0]['price']))
+                  'Total cost:', float(element[1]['price'])+float(element[0]['price'])
     else:
         for flight_info in flight_info_xml:
-            print(flight_info.get('title'))
+            print flight_info.get('title')
 
 
 def scrape():
@@ -147,7 +147,7 @@ def scrape():
             flight_data = flight_info_json['error'].replace("\\", "")
             root = html.fromstring(flight_data)
             error_info = root.xpath('//div[contains(@class, "entry")]//text()')
-            print(error_info[1])
+            print error_info[1]
 
 
 if __name__ == '__main__':

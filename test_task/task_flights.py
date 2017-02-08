@@ -25,7 +25,7 @@ def get_flights(departure, destination, date_out, date_back=None):
             'departure': departure,
             'destination': destination,
             'outboundDate': date_out,
-            'returnDate':  date_back,
+            'returnDate': date_back,
             'adultCount': 1,
             'oneway': one_way,
             'market': market_value[0],
@@ -35,7 +35,7 @@ def get_flights(departure, destination, date_out, date_back=None):
             '_ajax[requestParams][departure]': departure,
             '_ajax[requestParams][destination]': destination,
             '_ajax[requestParams][outboundDate]': date_out,
-            '_ajax[requestParams][returnDate]':  date_back,
+            '_ajax[requestParams][returnDate]': date_back,
             '_ajax[requestParams][adultCount]': 1,
             '_ajax[requestParams][oneway]': one_way}
         try:
@@ -71,10 +71,11 @@ def check_date_format(date_out, date_back=None):
     try:
         datetime.datetime.strptime(date_out, '%Y-%m-%d')
         datetime.datetime.strptime(date_back, '%Y-%m-%d')
-        return True
     except ValueError:
         print 'Incorrect date format, should be YYYY-MM-DD'
         return False
+    else:
+        return True
 
 
 def check_code(departure, destination):
@@ -90,7 +91,7 @@ def check_code(departure, destination):
 
 
 def parse_json(response):
-    """Parse file and print results"""
+    """Parse file"""
     flight_info_json = json.loads(response.text)
     flight_data = flight_info_json['templates']['main'].replace('\\', '')
     root = html.fromstring(flight_data)
@@ -111,11 +112,11 @@ def parse_json(response):
     return flight_dicts
 
 
-def flights_print(flight_dicts, departure, destination, one_way):
+def print_flights(flight_dicts, departure, destination, one_way):
     """Print flights data"""
-    outbound_list = []
-    inbound_list = []
     if not one_way:
+        outbound_list = []
+        inbound_list = []
         for flight_dict in flight_dicts:
             if flight_dict['direction'][0:3] == departure:
                 outbound_list.append(flight_dict)
@@ -126,7 +127,8 @@ def flights_print(flight_dicts, departure, destination, one_way):
                   outbound_flight['duration'], outbound_flight['price_type']
             print 'Inbound flight:', inbound_flight['direction'], inbound_flight['time'], \
                   inbound_flight['duration'], inbound_flight['price_type']
-            print 'Total cost:', float(inbound_flight['price'])+float(outbound_flight['price'])
+            print 'Total cost:', float(inbound_flight['price']) + float(outbound_flight['price'])
+            print
     else:
         for flight_info in flight_dicts:
             print flight_info.get('title')
@@ -148,7 +150,7 @@ def scrape():
             return 0
         try:
             result_dicts = parse_json(result_json)
-            flights_print(result_dicts, departure, destination, one_way)
+            print_flights(result_dicts, departure, destination, one_way)
         except KeyError:
             flight_info_json = json.loads(result_json.text)
             flight_data = flight_info_json['error'].replace('\\', '')

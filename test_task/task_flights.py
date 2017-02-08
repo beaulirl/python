@@ -42,16 +42,16 @@ def get_flights(departure, destination, date_out, date_back=None):
             response1 = session.post(response.url, data=trip_data, verify=False)
             response2 = session.post(response1.url, data=ajax_trip_data, verify=False)
         except requests.exceptions.ConnectTimeout:
-            print "Connection Timeout occurred"
+            print 'Connection Timeout occurred'
         except requests.exceptions.ConnectionError:
-            print "Connection Error occurred"
+            print 'Connection Error occurred'
         else:
             return response2
 
 
 def check_date(date_out, date_back=None):
-    """Check data value"""
-    if check_date_format(date_out, date_back) == 0:
+    """Check date value"""
+    if not check_date_format(date_out, date_back):
         return False
     today = datetime.date.today()
     if not date_back:
@@ -62,7 +62,7 @@ def check_date(date_out, date_back=None):
     if datetime_return >= datetime_out >= today:
         return True
     else:
-        print "Please, check your date"
+        print 'Please, check your date'
         return False
 
 
@@ -73,56 +73,62 @@ def check_date_format(date_out, date_back=None):
         datetime.datetime.strptime(date_back, '%Y-%m-%d')
         return True
     except ValueError:
-        print "Incorrect data format, should be YYYY-MM-DD"
+        print 'Incorrect date format, should be YYYY-MM-DD'
         return False
 
 
 def check_code(departure, destination):
     """Check iata-codes format"""
     if len(departure) != 3 or not departure.isupper() or not departure.isalpha():
-        print "Check your departure code"
+        print 'Check your departure code'
         return False
     elif len(destination) != 3 or not destination.isupper() or not destination.isalpha():
-        print "Check your destination code"
+        print 'Check your destination code'
         return False
     else:
         return True
 
 
-def parse_json(response, departure, destination, input_len):
+def parse_json(response):
     """Parse file and print results"""
     flight_info_json = json.loads(response.text)
-    flight_data = flight_info_json['templates']['main'].replace("\\", "")
+    flight_data = flight_info_json['templates']['main'].replace('\\', '')
     root = html.fromstring(flight_data)
     flight_info_xml = root.xpath('//div[contains(@class, "lowest")]//span')
-    flights_list_dict = []
-    departure_list = []
-    destination_list = []
-
+    flight_dicts = []
     for flight_info in flight_info_xml:
         pattern = r'(\w{3}[-]\w{3})[\s,.]\s(\d{2}[:]\d{2}[-]\d{2}[:]\d{2})' \
                   r'[\s,.]\s(\d{2}\s\w\s\d{2}\s\w+)\s' \
                   r'[\s,.]\s(\w+\s\w+[:]\s\d+[.]\d+)'
         parts = re.match(pattern, flight_info.get('title'))
-        dict_flights = {'direction': parts.group(1), 'time': parts.group(2),
-                        'duration': parts.group(3), 'price_type': parts.group(4),
-                        'price': flight_info.text}
-        flights_list_dict.append(dict_flights)
+        flight_dict = {
+            'direction': parts.group(1),
+            'time': parts.group(2),
+            'duration': parts.group(3),
+            'price_type': parts.group(4),
+            'price': flight_info.text}
+        flight_dicts.append(flight_dict)
+    return flight_dicts
 
-    if input_len != 4:
-        for flight_list in flights_list_dict:
-            if flight_list['direction'][0:3] == departure:
-                departure_list.append(flight_list)
-            elif flight_list['direction'][0:3] == destination:
-                destination_list.append(flight_list)
-        for element in itertools.product(departure_list, destination_list):
-            print element[0]['direction'], element[0]['time'], \
-                  element[0]['duration'], element[0]['price_type'],\
-                  element[1]['direction'], element[1]['time'], \
-                  element[1]['duration'], element[1]['price_type'],\
-                  'Total cost:', float(element[1]['price'])+float(element[0]['price'])
+
+def flights_print(flight_dicts, departure, destination, one_way):
+    """Print flights data"""
+    outbound_list = []
+    inbound_list = []
+    if not one_way:
+        for flight_dict in flight_dicts:
+            if flight_dict['direction'][0:3] == departure:
+                outbound_list.append(flight_dict)
+            elif flight_dict['direction'][0:3] == destination:
+                inbound_list.append(flight_dict)
+        for outbound_flight, inbound_flight in itertools.product(outbound_list, inbound_list):
+            print 'Outbound flight:', outbound_flight['direction'], outbound_flight['time'], \
+                  outbound_flight['duration'], outbound_flight['price_type']
+            print 'Inbound flight:', inbound_flight['direction'], inbound_flight['time'], \
+                  inbound_flight['duration'], inbound_flight['price_type']
+            print 'Total cost:', float(inbound_flight['price'])+float(outbound_flight['price'])
     else:
-        for flight_info in flight_info_xml:
+        for flight_info in flight_dicts:
             print flight_info.get('title')
 
 
@@ -131,8 +137,8 @@ def scrape():
     departure = sys.argv[1]
     destination = sys.argv[2]
     date_out = sys.argv[3]
-    input_len = len(sys.argv)
-    if input_len == 4:
+    one_way = len(sys.argv) == 4
+    if one_way:
         date_back = None
     else:
         date_back = sys.argv[4]
@@ -141,10 +147,11 @@ def scrape():
         if not result_json:
             return 0
         try:
-            parse_json(result_json, departure, destination, input_len)
+            result_dicts = parse_json(result_json)
+            flights_print(result_dicts, departure, destination, one_way)
         except KeyError:
             flight_info_json = json.loads(result_json.text)
-            flight_data = flight_info_json['error'].replace("\\", "")
+            flight_data = flight_info_json['error'].replace('\\', '')
             root = html.fromstring(flight_data)
             error_info = root.xpath('//div[contains(@class, "entry")]//text()')
             print error_info[1]

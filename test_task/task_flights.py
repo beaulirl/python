@@ -68,6 +68,8 @@ def check_date(date_out, date_back=None):
 
 def check_date_format(date_out, date_back=None):
     """Check date format"""
+    if not date_back:
+        date_back = '9999-12-31'
     try:
         datetime.datetime.strptime(date_out, '%Y-%m-%d')
         datetime.datetime.strptime(date_back, '%Y-%m-%d')
@@ -131,7 +133,8 @@ def print_flights(flight_dicts, departure, destination, one_way):
             print
     else:
         for flight_info in flight_dicts:
-            print flight_info.get('title')
+            print 'Outbound flight:', flight_info['direction'], flight_info['time'], \
+                flight_info['duration'], flight_info['price_type']
 
 
 def scrape():

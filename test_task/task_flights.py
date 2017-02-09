@@ -13,7 +13,7 @@ def get_flights(departure, destination, date_out, date_back=None):
     """Request data about flights"""
     with requests.Session() as session:
         url = 'http://www.flyniki.com/en/start.php'
-        if date_back:
+        if date_back is not None:
             one_way = 0
         else:
             one_way = 1
@@ -54,7 +54,7 @@ def check_date(date_out, date_back=None):
     if not check_date_format(date_out, date_back):
         return False
     today = datetime.date.today()
-    if not date_back:
+    if date_back is None:
         datetime_return = datetime.datetime.strptime('9999-12-31', '%Y-%m-%d').date()
     else:
         datetime_return = datetime.datetime.strptime(date_back, '%Y-%m-%d').date()
@@ -68,7 +68,7 @@ def check_date(date_out, date_back=None):
 
 def check_date_format(date_out, date_back=None):
     """Check date format"""
-    if not date_back:
+    if date_back is None:
         date_back = '9999-12-31'
     try:
         datetime.datetime.strptime(date_out, '%Y-%m-%d')

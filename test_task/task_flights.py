@@ -116,6 +116,7 @@ def parse_json(response):
 
 def print_flights(flight_dicts, departure, destination, one_way):
     """Print flights data"""
+    payment_charge = 8.6
     if not one_way:
         outbound_list = []
         inbound_list = []
@@ -126,15 +127,17 @@ def print_flights(flight_dicts, departure, destination, one_way):
                 inbound_list.append(flight_dict)
         for outbound_flight, inbound_flight in itertools.product(outbound_list, inbound_list):
             print 'Outbound flight:', outbound_flight['direction'], outbound_flight['time'], \
-                  outbound_flight['duration'], outbound_flight['price_type']
+                  outbound_flight['duration'], outbound_flight['price_type'], 'Pounds'
             print 'Inbound flight:', inbound_flight['direction'], inbound_flight['time'], \
-                  inbound_flight['duration'], inbound_flight['price_type']
-            print 'Total cost:', float(inbound_flight['price']) + float(outbound_flight['price'])
+                  inbound_flight['duration'], inbound_flight['price_type'], 'Pounds'
+            print 'Total cost:', float(inbound_flight['price']) + float(outbound_flight['price']) + payment_charge,\
+                'Pounds'
             print
     else:
         for flight_info in flight_dicts:
             print 'Outbound flight:', flight_info['direction'], flight_info['time'], \
-                flight_info['duration'], flight_info['price_type']
+                flight_info['duration'], flight_info['price_type'], 'Pounds',\
+                'Total cost:', float(flight_info['price']) + payment_charge, 'Pounds'
 
 
 def scrape():

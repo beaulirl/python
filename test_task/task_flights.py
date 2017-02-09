@@ -154,7 +154,7 @@ def scrape():
         try:
             result_dicts = parse_json(result_json)
             print_flights(result_dicts, departure, destination, one_way)
-        except KeyError:
+        except (SyntaxError, KeyError):
             flight_info_json = json.loads(result_json.text)
             flight_data = flight_info_json['error'].replace('\\', '')
             root = html.fromstring(flight_data)

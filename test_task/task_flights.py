@@ -32,6 +32,7 @@ def get_flights(departure, destination, date_out, date_back=None):
             'language': 'en'}
         ajax_trip_data = {
             '_ajax[templates][]': 'main',
+            '_ajax[templates]["]': 'priceoverview',
             '_ajax[requestParams][departure]': departure,
             '_ajax[requestParams][destination]': destination,
             '_ajax[requestParams][outboundDate]': date_out,
@@ -95,9 +96,13 @@ def parse_json(response):
     """Parse file"""
     flight_info_json = json.loads(response.text)
     flight_data = flight_info_json['templates']['main'].replace('\\', '')
-    root = html.fromstring(flight_data)
-    flight_info_xml = root.xpath('//div[contains(@class, "lowest")]//span')
-    currency_xml = root.xpath('//th[contains(@id, "header-price")]')
+    price_data = flight_info_json['templates']['priceoverview'].replace('\\', '')
+    root1 = html.fromstring(flight_data)
+    root2 = html.fromstring(price_data)
+    flight_info_xml = root1.xpath('//div[contains(@class, "lowest")]//span')
+    currency_charge_xml = root2.xpath('//tr[contains(@class, "additionals-tsc")]//td[contains(@class, "price")]//text()')
+    currency = currency_charge_xml[0][1:2]
+    charge = currency_charge_xml[0][2:6]
     flight_dicts = []
     for flight_info in flight_info_xml:
         pattern = r'(\w{3}[-]\w{3})[\s,.]\s(\d{2}[:]\d{2}[-]\d{2}[:]\d{2})' \
@@ -110,7 +115,8 @@ def parse_json(response):
             'duration': parts.group(3),
             'price_type': parts.group(4),
             'price': flight_info.text,
-            'currency': currency_xml[0].get('aria-label')[0:1]}
+            'currency': currency,
+            'payment_charge': charge}
         flight_dicts.append(flight_dict)
     return flight_dicts
 
@@ -119,7 +125,6 @@ def print_flights(flight_dicts, one_way):
     """Print flights data"""
     departure = flight_dicts[0]['direction'][0:3]
     destination = flight_dicts[0]['direction'][4:7]
-    payment_charge = 8.6
     if not one_way:
         outbound_list = []
         inbound_list = []
@@ -133,14 +138,15 @@ def print_flights(flight_dicts, one_way):
                   outbound_flight['duration'], outbound_flight['price_type'], outbound_flight['currency']
             print 'Inbound flight:', inbound_flight['direction'], inbound_flight['time'], \
                   inbound_flight['duration'], inbound_flight['price_type'], inbound_flight['currency']
-            print 'Total cost:', float(inbound_flight['price']) + float(outbound_flight['price']) + payment_charge, \
-                inbound_flight['currency']
+            print 'Total cost:', float(inbound_flight['price']) + float(outbound_flight['price']) + \
+                  float(outbound_flight['payment_charge']), inbound_flight['currency']
             print
     else:
         for flight_info in flight_dicts:
             print 'Outbound flight:', flight_info['direction'], flight_info['time'], \
                 flight_info['duration'], flight_info['price_type'], flight_info['currency'],\
-                'Total cost:', float(flight_info['price']) + payment_charge, flight_info['currency']
+                'Total cost:', float(flight_info['price']) + float(flight_info['payment_charge']),\
+                flight_info['currency']
 
 
 def scrape():

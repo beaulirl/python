@@ -32,7 +32,7 @@ def get_flights(departure, destination, date_out, date_back=None):
             'language': 'en'}
         ajax_trip_data = {
             '_ajax[templates][]': 'main',
-            '_ajax[templates]["]': 'priceoverview',
+            '_ajax[templates][.]': 'priceoverview',
             '_ajax[requestParams][departure]': departure,
             '_ajax[requestParams][destination]': destination,
             '_ajax[requestParams][outboundDate]': date_out,
@@ -55,9 +55,7 @@ def check_date(date_out, date_back=None):
     if not check_date_format(date_out, date_back):
         return False
     today = datetime.date.today()
-    if date_back is None:
-        date_back = '9999-12-31'
-    datetime_return = datetime.datetime.strptime(date_back, '%Y-%m-%d').date()
+    datetime_return = datetime.datetime.strptime(date_back or '9999-12-31', '%Y-%m-%d').date()
     datetime_out = datetime.datetime.strptime(date_out, '%Y-%m-%d').date()
     if datetime_return >= datetime_out >= today:
         return True
@@ -68,11 +66,10 @@ def check_date(date_out, date_back=None):
 
 def check_date_format(date_out, date_back=None):
     """Check date format"""
-    if date_back is None:
-        date_back = '9999-12-31'
     try:
         datetime.datetime.strptime(date_out, '%Y-%m-%d')
-        datetime.datetime.strptime(date_back, '%Y-%m-%d')
+        if date_back is not None:
+            datetime.datetime.strptime(date_back, '%Y-%m-%d')
     except ValueError:
         print 'Incorrect date format, should be YYYY-MM-DD'
         return False
@@ -100,7 +97,8 @@ def parse_json(response):
     root1 = html.fromstring(flight_data)
     root2 = html.fromstring(price_data)
     flight_info_xml = root1.xpath('//div[contains(@class, "lowest")]//span')
-    currency_charge_xml = root2.xpath('//tr[contains(@class, "additionals-tsc")]//td[contains(@class, "price")]//text()')
+    currency_charge_xml = root2.xpath('//tr[contains(@class, "additionals-tsc")]'
+                                      '//td[contains(@class, "price")]//text()')
     currency = currency_charge_xml[0][1:2]
     charge = currency_charge_xml[0][2:6]
     flight_dicts = []
@@ -159,7 +157,6 @@ def scrape():
     if check_date(date_out, date_back) and check_code(departure, destination):
         result_json = get_flights(departure, destination, date_out, date_back)
         if not result_json:
-            print "Sorry, flights have not been found"
             return 0
         try:
             result_dicts = parse_json(result_json)

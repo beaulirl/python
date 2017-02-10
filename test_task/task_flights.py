@@ -55,9 +55,8 @@ def check_date(date_out, date_back=None):
         return False
     today = datetime.date.today()
     if date_back is None:
-        datetime_return = datetime.datetime.strptime('9999-12-31', '%Y-%m-%d').date()
-    else:
-        datetime_return = datetime.datetime.strptime(date_back, '%Y-%m-%d').date()
+        date_back = '9999-12-31'
+    datetime_return = datetime.datetime.strptime(date_back, '%Y-%m-%d').date()
     datetime_out = datetime.datetime.strptime(date_out, '%Y-%m-%d').date()
     if datetime_return >= datetime_out >= today:
         return True
@@ -82,10 +81,10 @@ def check_date_format(date_out, date_back=None):
 
 def check_code(departure, destination):
     """Check iata-codes format"""
-    if len(departure) != 3 or not departure.isupper() or not departure.isalpha():
+    if len(departure) != 3 or not departure.isalpha():
         print 'Check your departure code'
         return False
-    elif len(destination) != 3 or not destination.isupper() or not destination.isalpha():
+    elif len(destination) != 3 or not destination.isalpha():
         print 'Check your destination code'
         return False
     else:
@@ -98,6 +97,7 @@ def parse_json(response):
     flight_data = flight_info_json['templates']['main'].replace('\\', '')
     root = html.fromstring(flight_data)
     flight_info_xml = root.xpath('//div[contains(@class, "lowest")]//span')
+    currency_xml = root.xpath('//th[contains(@id, "header-price")]')
     flight_dicts = []
     for flight_info in flight_info_xml:
         pattern = r'(\w{3}[-]\w{3})[\s,.]\s(\d{2}[:]\d{2}[-]\d{2}[:]\d{2})' \
@@ -109,15 +109,17 @@ def parse_json(response):
             'time': parts.group(2),
             'duration': parts.group(3),
             'price_type': parts.group(4),
-            'price': flight_info.text}
+            'price': flight_info.text,
+            'currency': currency_xml[0].get('aria-label')[0:1]}
         flight_dicts.append(flight_dict)
     return flight_dicts
 
 
-def print_flights(flight_dicts, departure, destination, one_way):
+def print_flights(flight_dicts, one_way):
     """Print flights data"""
+    departure = flight_dicts[0]['direction'][0:3]
+    destination = flight_dicts[0]['direction'][4:7]
     payment_charge = 8.6
-    currency = 'Pounds'
     if not one_way:
         outbound_list = []
         inbound_list = []
@@ -128,17 +130,17 @@ def print_flights(flight_dicts, departure, destination, one_way):
                 inbound_list.append(flight_dict)
         for outbound_flight, inbound_flight in itertools.product(outbound_list, inbound_list):
             print 'Outbound flight:', outbound_flight['direction'], outbound_flight['time'], \
-                  outbound_flight['duration'], outbound_flight['price_type'], currency
+                  outbound_flight['duration'], outbound_flight['price_type'], outbound_flight['currency']
             print 'Inbound flight:', inbound_flight['direction'], inbound_flight['time'], \
-                  inbound_flight['duration'], inbound_flight['price_type'], currency
-            print 'Total cost:', float(inbound_flight['price']) + float(outbound_flight['price']) + payment_charge,\
-                currency
+                  inbound_flight['duration'], inbound_flight['price_type'], inbound_flight['currency']
+            print 'Total cost:', float(inbound_flight['price']) + float(outbound_flight['price']) + payment_charge, \
+                inbound_flight['currency']
             print
     else:
         for flight_info in flight_dicts:
             print 'Outbound flight:', flight_info['direction'], flight_info['time'], \
-                flight_info['duration'], flight_info['price_type'], currency,\
-                'Total cost:', float(flight_info['price']) + payment_charge, currency
+                flight_info['duration'], flight_info['price_type'], flight_info['currency'],\
+                'Total cost:', float(flight_info['price']) + payment_charge, flight_info['currency']
 
 
 def scrape():
@@ -147,17 +149,15 @@ def scrape():
     destination = sys.argv[2]
     date_out = sys.argv[3]
     one_way = len(sys.argv) == 4
-    if one_way:
-        date_back = None
-    else:
-        date_back = sys.argv[4]
+    date_back = None if one_way else sys.argv[4]
     if check_date(date_out, date_back) and check_code(departure, destination):
         result_json = get_flights(departure, destination, date_out, date_back)
         if not result_json:
+            print "Sorry, flights have not been found"
             return 0
         try:
             result_dicts = parse_json(result_json)
-            print_flights(result_dicts, departure, destination, one_way)
+            print_flights(result_dicts, one_way)
         except (SyntaxError, KeyError):
             flight_info_json = json.loads(result_json.text)
             flight_data = flight_info_json['error'].replace('\\', '')

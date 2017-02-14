@@ -165,7 +165,7 @@ def scrape():
         return 0
     result_json = get_flights(departure, destination, date_out, date_back)
     if not result_json:
-        # if get_flights function returns invalid requests, it also prints error message
+        # if get_flights function returns None, it also prints error message
         return 0
     try:
         result_dicts = parse_json(result_json[0])
@@ -175,18 +175,17 @@ def scrape():
 
 
 def check_for_errors(result_json):
-        flight_info_json = json.loads(result_json[1].text)
-        if 'error' in flight_info_json:
-            flight_data = flight_info_json['error'].replace('\\', '')
-            root = html.fromstring(flight_data)
-            error_info = root.xpath('//div[contains(@class, "entry")]//p//text()')
-            print error_info[0]
-        else:
-            flight_data = flight_info_json['templates']['dateoverview'].replace('\\', '')
-            root = html.fromstring(flight_data)
-            error_info = root.xpath('//div[contains(@class, "wrapper")]//p//text()')
-            for info in error_info:
-                print info
+    flight_info_json = json.loads(result_json[1].text)
+    if 'error' in flight_info_json:
+        flight_data = flight_info_json['error'].replace('\\', '')
+        root = html.fromstring(flight_data)
+        error_info = root.xpath('//div[contains(@class, "entry")]//p//text()')
+        print error_info[0]
+    else:
+        flight_data = flight_info_json['templates']['dateoverview'].replace('\\', '')
+        root = html.fromstring(flight_data)
+        error_info = root.xpath('//div[contains(@class, "wrapper")]//p//text()')
+        print error_info[3]
 
 
 if __name__ == '__main__':

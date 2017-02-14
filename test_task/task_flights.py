@@ -33,21 +33,27 @@ def get_flights(departure, destination, date_out, date_back=None):
         ajax_trip_data = {
             '_ajax[templates][]': 'main',
             '_ajax[templates][.]': 'priceoverview',
+            '_ajax[templates]["]': 'infos',
+            '_ajax[templates][/]': 'flightinfo',
             '_ajax[requestParams][departure]': departure,
-            '_ajax[requestParams][destination]': destination,
+            '_a jax[requestParams][destination]': destination,
             '_ajax[requestParams][outboundDate]': date_out,
             '_ajax[requestParams][returnDate]': date_back,
             '_ajax[requestParams][adultCount]': 1,
+            '_ajax[requestParams][openDateOverview]': '',
             '_ajax[requestParams][oneway]': one_way}
+        date_trip_data = {
+            '_ajax[templates][]': 'dateoverview'}
         try:
             response1 = session.post(response.url, data=trip_data, verify=False)
             response2 = session.post(response1.url, data=ajax_trip_data, verify=False)
+            response3 = session.post(response2.url, data=date_trip_data, verify=False)
         except requests.exceptions.ConnectTimeout:
             print 'Connection Timeout occurred'
         except requests.exceptions.ConnectionError:
             print 'Connection Error occurred'
         else:
-            return response2
+            return response2, response3
 
 
 def check_date(date_out, date_back=None):
@@ -159,14 +165,21 @@ def scrape():
         if not result_json:
             return 0
         try:
-            result_dicts = parse_json(result_json)
+            result_dicts = parse_json(result_json[0])
             print_flights(result_dicts, one_way)
         except (SyntaxError, KeyError):
-            flight_info_json = json.loads(result_json.text)
-            flight_data = flight_info_json['error'].replace('\\', '')
-            root = html.fromstring(flight_data)
-            error_info = root.xpath('//div[contains(@class, "entry")]//text()')
-            print error_info[1]
+            flight_info_json = json.loads(result_json[1].text)
+            try:
+                flight_data = flight_info_json['error'].replace('\\', '')
+                root = html.fromstring(flight_data)
+                error_info = root.xpath('//div[contains(@class, "entry")]//p//text()')
+                print error_info[0]
+            except KeyError:
+                flight_data = flight_info_json['templates']['dateoverview'].replace('\\', '')
+                root = html.fromstring(flight_data)
+                error_info = root.xpath('//div[contains(@class, "wrapper")]//p//text()')
+                for info in error_info:
+                    print info
 
 
 if __name__ == '__main__':

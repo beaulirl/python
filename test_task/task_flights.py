@@ -160,7 +160,7 @@ def scrape():
     date_out = sys.argv[3]
     one_way = len(sys.argv) == 4
     date_back = None if one_way else sys.argv[4]
-    if not check_date(date_out, date_back) and not check_code(departure, destination):
+    if not check_date(date_out, date_back) or not check_code(departure, destination):
         # if any of check functions returns False, it also prints error message
         return 0
     result_json = get_flights(departure, destination, date_out, date_back)

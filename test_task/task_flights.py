@@ -175,6 +175,7 @@ def scrape():
 
 
 def check_for_errors(result_json):
+    """Print error messages"""
     flight_info_json = json.loads(result_json[1].text)
     if 'error' in flight_info_json:
         flight_data = flight_info_json['error'].replace('\\', '')
